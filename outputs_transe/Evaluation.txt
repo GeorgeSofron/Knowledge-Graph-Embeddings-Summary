@@ -1,0 +1,7 @@
+TransE Evaluation Results (Filtered Ranking)
+==================================================
+
+MRR: 0.3828
+Hits@1: 0.3216
+Hits@3: 0.4120
+Hits@10: 0.4899

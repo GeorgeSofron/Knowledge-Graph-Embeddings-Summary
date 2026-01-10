@@ -1,0 +1,22 @@
+KNOWLEDGE GRAPH EMBEDDING MODEL COMPARISON
+============================================================
+
+Performance Metrics (Filtered Ranking)
+------------------------------------------------------------
+             MRR  Hits@1  Hits@3  Hits@10  Mean Rank
+TransE    0.3828  0.3216  0.4120   0.4899        NaN
+ComplEx   0.5521  0.4923  0.5797   0.6645        NaN
+TriModel  0.6158  0.5539  0.6427   0.7378   258.7152
+
+Best Model per Metric:
+------------------------------------------------------------
+  MRR: TriModel (0.6158)
+  Hits@1: TriModel (0.5539)
+  Hits@3: TriModel (0.6427)
+  Hits@10: TriModel (0.7378)
+  Mean Rank: TriModel (258.7152)
+
+
+Conclusion:
+------------------------------------------------------------
+Based on MRR (the most commonly used metric), TriModel achieves the best performance.

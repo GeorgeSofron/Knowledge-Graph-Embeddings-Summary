@@ -181,8 +181,8 @@ if __name__ == "__main__":
     print(f"Loaded ComplEx model: {num_entities} entities, {len(relation2id)} relations")
 
     # Load data
-    train_df = load_triples("data/train.txt")
-    test_df = load_triples("data/test.txt")
+    train_df = load_triples("data/complex/train.txt")
+    test_df = load_triples("data/complex/test.txt")
     
     # Filter test data to only include known entities/relations
     test_df = test_df[
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     all_true |= triples_to_id_set(test_df, entity2id, relation2id)
     
     # Try to add validation triples if available
-    valid_path = "data/valid.txt"
+    valid_path = "data/complex/valid.txt"
     if os.path.exists(valid_path):
         valid_df = load_triples(valid_path)
         valid_df = valid_df[
