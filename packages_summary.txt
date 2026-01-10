@@ -1,0 +1,142 @@
+PACKAGES SUMMARY FOR KNOWLEDGE GRAPH EMBEDDINGS PROJECT
+============================================================
+Generated: January 10, 2026
+
+This document summarizes all Python packages used in the project.
+
+
+================================================================================
+CORE PACKAGES (Required)
+================================================================================
+
+Package          Version    Purpose
+-----------      -------    -----------------------------------------------
+torch            >= 1.9     Deep learning framework for model training
+numpy            >= 1.20    Numerical computations and array operations
+pandas           >= 1.3     Data loading and manipulation (CSV/TSV files)
+matplotlib       >= 3.4     Visualization (training curves, charts)
+scikit-learn     >= 0.24    Train/test split, evaluation metrics (AUC, F1)
+tqdm             >= 4.60    Progress bars during training and evaluation
+
+
+================================================================================
+STANDARD LIBRARY (Built-in - No Installation Needed)
+================================================================================
+
+Package          Purpose
+-----------      -----------------------------------------------
+os               File and directory operations
+re               Regular expressions for parsing results
+random           Random seed for reproducibility
+threading        Background operations in GUI
+tkinter          Graphical User Interface (predict_fact_gui.py)
+
+
+================================================================================
+PACKAGE USAGE BY FILE
+================================================================================
+
+model.py (Core Model Definitions)
+---------------------------------
+  - torch, torch.nn, torch.nn.functional
+
+TransE_Torch.py (TransE Training)
+---------------------------------
+  - os, random
+  - numpy, pandas, matplotlib.pyplot
+  - torch, torch.nn, torch.nn.functional
+  - sklearn.model_selection.train_test_split
+
+ComplEx_Torch.py (ComplEx Training)
+-----------------------------------
+  - os, random
+  - numpy, pandas, matplotlib.pyplot
+  - torch, torch.nn, torch.nn.functional
+  - sklearn.model_selection.train_test_split
+
+TriModel_Torch.py (TriModel Training)
+-------------------------------------
+  - os, random
+  - numpy, pandas, matplotlib.pyplot
+  - torch, torch.nn, torch.nn.functional
+  - sklearn.model_selection.train_test_split
+
+TransE_Torch_evaluation.py (TransE Evaluation)
+----------------------------------------------
+  - torch
+  - numpy, pandas
+  - tqdm
+
+ComplEx_Torch_evaluation.py (ComplEx Evaluation)
+------------------------------------------------
+  - os, torch
+  - numpy, pandas
+  - tqdm
+
+TriModel_Torch_evaluation.py (TriModel Evaluation)
+--------------------------------------------------
+  - torch
+  - numpy, pandas
+  - tqdm
+
+compare_models.py (Model Comparison)
+------------------------------------
+  - os, re
+  - numpy, pandas
+  - matplotlib.pyplot
+
+evaluate_dti_auc.py (DTI AUC Evaluation)
+----------------------------------------
+  - os, torch
+  - numpy, pandas
+  - tqdm
+  - matplotlib.pyplot
+  - sklearn.metrics (roc_auc_score, average_precision_score,
+                     precision_recall_curve, roc_curve,
+                     f1_score, precision_score, recall_score)
+
+predict_fact_gui.py (GUI Application)
+-------------------------------------
+  - os, threading
+  - tkinter, ttk, messagebox, scrolledtext
+  - torch
+
+
+================================================================================
+INSTALLATION
+================================================================================
+
+To install all required packages, run:
+
+    pip install torch numpy pandas matplotlib scikit-learn tqdm
+
+Or create a requirements.txt with:
+
+    torch>=1.9.0
+    numpy>=1.20.0
+    pandas>=1.3.0
+    matplotlib>=3.4.0
+    scikit-learn>=0.24.0
+    tqdm>=4.60.0
+
+
+================================================================================
+NOTES
+================================================================================
+
+1. PyTorch (torch): The main deep learning framework used for:
+   - Neural network layers (nn.Embedding, nn.Module)
+   - Optimization (Adam, SGD)
+   - GPU acceleration (if available)
+
+2. scikit-learn: Used for:
+   - train_test_split: Splitting data into train/validation/test sets
+   - Evaluation metrics: AUC-ROC, AUC-PR, F1, Precision, Recall
+
+3. tkinter: Standard Python GUI library (included with Python)
+   - Only needed for predict_fact_gui.py
+
+4. tqdm: Provides progress bars during:
+   - Training epochs
+   - Batch evaluation
+
