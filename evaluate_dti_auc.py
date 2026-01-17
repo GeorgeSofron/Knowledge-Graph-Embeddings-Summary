@@ -294,6 +294,11 @@ def compute_metrics(y_true, y_scores):
     """Compute AUC-ROC, AUC-PR, and other metrics."""
     metrics = {}
     
+    # Safety check
+    if len(y_true) == 0 or len(y_scores) == 0:
+        return {'AUC-ROC': 0, 'AUC-PR': 0, 'Best_F1': 0, 
+                'Precision@Best_F1': 0, 'Recall@Best_F1': 0, 'Best_Threshold': 0}
+    
     # AUC-ROC
     metrics['AUC-ROC'] = roc_auc_score(y_true, y_scores)
     
@@ -302,9 +307,13 @@ def compute_metrics(y_true, y_scores):
     
     # Find optimal threshold using F1
     precision, recall, thresholds = precision_recall_curve(y_true, y_scores)
-    f1_scores = 2 * precision * recall / (precision + recall + 1e-10)
-    best_idx = np.argmax(f1_scores)
-    best_threshold = thresholds[best_idx] if best_idx < len(thresholds) else thresholds[-1]
+    # Note: thresholds has length len(precision) - 1
+    f1_scores = 2 * precision[:-1] * recall[:-1] / (precision[:-1] + recall[:-1] + 1e-10)
+    if len(f1_scores) > 0:
+        best_idx = np.argmax(f1_scores)
+        best_threshold = thresholds[best_idx]
+    else:
+        best_threshold = 0.5
     
     # Metrics at optimal threshold
     y_pred = (y_scores >= best_threshold).astype(int)
@@ -380,6 +389,14 @@ def evaluate_model(model, model_type, model_name, test_dti_pairs, all_positive_p
     negative_scores = score_pairs(
         model, model_type, negative_pairs, drug_target_rel_id, entity2id, device
     )
+    
+    # Safety check for empty arrays
+    if len(positive_scores) == 0:
+        print("Warning: No valid positive scores!")
+        return None
+    if len(negative_scores) == 0:
+        print("Warning: No valid negative scores!")
+        return None
     
     # Combine scores and labels
     y_scores = np.concatenate([positive_scores, negative_scores])
@@ -520,7 +537,7 @@ def main():
     print("=" * 70)
     
     DEVICE = "cpu"
-    NEG_RATIO = 50  # 50 negatives per positive
+    NEG_RATIO = 80  # 80 negatives per positive
     
     # Model paths
     MODEL_PATHS = {
