@@ -89,9 +89,7 @@ class DrugTargetPredictionGUI:
         self.task_var = tk.StringVar(value="targets")
         tasks = [("Score Drug-Target Pair", "score"),
                  ("Predict Targets for Drug", "targets"),
-                 ("Predict Drugs for Target", "drugs"),
-                 ("Batch: All Targets for Drug", "batch_targets"),
-                 ("Batch: All Drugs for Target", "batch_drugs")]
+                 ("Predict Drugs for Target", "drugs")]
         
         for i, (name, value) in enumerate(tasks):
             rb = ttk.Radiobutton(task_frame, text=name, value=value, 
@@ -212,10 +210,6 @@ class DrugTargetPredictionGUI:
         self.status_var = tk.StringVar(value="Ready. Please load a model first.")
         status_bar = ttk.Label(status_frame, textvariable=self.status_var, relief="sunken", anchor="w")
         status_bar.grid(row=0, column=0, sticky="ew")
-        
-        # Progress bar
-        self.progress = ttk.Progressbar(status_frame, mode="indeterminate", length=150)
-        self.progress.grid(row=0, column=1, padx=10)
     
     def filter_combobox(self, event, combo_type):
         """Filter combobox options based on typed text."""
@@ -256,7 +250,7 @@ class DrugTargetPredictionGUI:
             self.target_label.config(text="Target Protein (UniProt ID):")
     
     def load_model(self):
-        """Load the selected model and extract DTI-specific data."""
+        """Load the selected model in a background thread."""
         model_name = self.model_var.get()
         
         model_paths = {
@@ -271,9 +265,14 @@ class DrugTargetPredictionGUI:
             return
         
         self.status_var.set(f"Loading {model_name} model...")
-        self.progress.start()
-        self.root.update()
+        self.load_btn.config(state="disabled")
         
+        # Run loading in background thread
+        thread = threading.Thread(target=self._load_model_thread, args=(model_name, model_path, train_path))
+        thread.start()
+    
+    def _load_model_thread(self, model_name, model_path, train_path):
+        """Background thread for model loading."""
         try:
             ckpt = torch.load(model_path, map_location=self.device, weights_only=False)
             
@@ -311,16 +310,12 @@ class DrugTargetPredictionGUI:
             if "DRUG_TARGET" in self.relation2id:
                 self.dti_relation_id = self.relation2id["DRUG_TARGET"]
             else:
-                messagebox.showwarning("Warning", "DRUG_TARGET relation not found in model!")
+                self.root.after(0, lambda: messagebox.showwarning("Warning", "DRUG_TARGET relation not found in model!"))
             
             # Separate drugs and targets
             self.drugs = sorted([e for e in self.entity2id.keys() if e.startswith("DB")])
             self.targets = sorted([e for e in self.entity2id.keys() 
                                    if e.startswith("P") or e.startswith("Q")])
-            
-            # Update dropdowns
-            self.drug_combo['values'] = self.drugs[:100]
-            self.target_combo['values'] = self.targets[:100]
             
             # Load training pairs for novel/known detection
             self.training_pairs = set()
@@ -333,24 +328,28 @@ class DrugTargetPredictionGUI:
                             if relation == "DRUG_TARGET":
                                 self.training_pairs.add((head, tail))
             
-            self.model_status.config(text=f"✓ {model_name} loaded", foreground="green")
-            self.status_var.set(f"{model_name} loaded: {len(self.drugs):,} drugs, "
-                               f"{len(self.targets):,} targets, "
-                               f"{len(self.training_pairs):,} known DTI pairs")
+            # Update GUI elements from main thread
+            def update_gui():
+                self.drug_combo['values'] = self.drugs[:100]
+                self.target_combo['values'] = self.targets[:100]
+                self.model_status.config(text=f"✓ {model_name} loaded", foreground="green")
+                self.status_var.set(f"{model_name} loaded: {len(self.drugs):,} drugs, "
+                                   f"{len(self.targets):,} targets, "
+                                   f"{len(self.training_pairs):,} known DTI pairs")
+                self.summary_text.delete(1.0, tk.END)
+                self.summary_text.insert(tk.END, f"Model: {model_name}\n")
+                self.summary_text.insert(tk.END, f"Total Entities: {len(self.entity2id):,}\n")
+                self.summary_text.insert(tk.END, f"  - Drugs (DB*): {len(self.drugs):,}\n")
+                self.summary_text.insert(tk.END, f"  - Targets (P*/Q*): {len(self.targets):,}\n")
+                self.summary_text.insert(tk.END, f"Known Drug-Target Pairs (Training): {len(self.training_pairs):,}\n")
             
-            # Show summary
-            self.summary_text.delete(1.0, tk.END)
-            self.summary_text.insert(tk.END, f"Model: {model_name}\n")
-            self.summary_text.insert(tk.END, f"Total Entities: {len(self.entity2id):,}\n")
-            self.summary_text.insert(tk.END, f"  - Drugs (DB*): {len(self.drugs):,}\n")
-            self.summary_text.insert(tk.END, f"  - Targets (P*/Q*): {len(self.targets):,}\n")
-            self.summary_text.insert(tk.END, f"Known Drug-Target Pairs (Training): {len(self.training_pairs):,}\n")
+            self.root.after(0, update_gui)
             
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to load model: {str(e)}")
-            self.status_var.set("Error loading model")
+            self.root.after(0, lambda: messagebox.showerror("Error", f"Failed to load model: {str(e)}"))
+            self.root.after(0, lambda: self.status_var.set("Error loading model"))
         finally:
-            self.progress.stop()
+            self.root.after(0, lambda: self.load_btn.config(state="normal"))
     
     def run_prediction_threaded(self):
         """Run prediction in a background thread."""
@@ -358,7 +357,6 @@ class DrugTargetPredictionGUI:
             messagebox.showwarning("Warning", "Please load a model first!")
             return
         
-        self.progress.start()
         self.run_btn.config(state="disabled")
         
         thread = threading.Thread(target=self.run_prediction)
@@ -380,7 +378,6 @@ class DrugTargetPredictionGUI:
             self.root.after(0, lambda: messagebox.showerror("Error", str(e)))
             self.root.after(0, lambda: self.status_var.set(f"Error: {str(e)}"))
         finally:
-            self.root.after(0, self.progress.stop)
             self.root.after(0, lambda: self.run_btn.config(state="normal"))
     
     def compute_confidence(self, scores):

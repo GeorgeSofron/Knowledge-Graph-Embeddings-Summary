@@ -1,0 +1,9 @@
+ComplEx Binary Classification Results
+NEG_RATIO: 10
+========================================
+
+AUC-ROC: 0.9850
+AUC-PR:  0.9460
+Best F1: 0.9072
+Precision @ Best F1: 0.9491
+Recall @ Best F1:    0.8689

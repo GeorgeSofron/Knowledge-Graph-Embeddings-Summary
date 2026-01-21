@@ -1,0 +1,13 @@
+DRUG-TARGET INTERACTION PREDICTION EVALUATION (TriModel)
+============================================================
+
+Negative Ratio: 10:1
+
+AUC-ROC:          0.8546
+AUC-PR:           0.6359
+Best F1:          0.5972
+Precision@Best:   0.7143
+Recall@Best:      0.5131
+Best Threshold:   1.4771
+Test Positives:   2894
+Test Negatives:   28940

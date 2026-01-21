@@ -1,0 +1,13 @@
+DRUG-TARGET INTERACTION PREDICTION EVALUATION (TransE)
+============================================================
+
+Negative Ratio: 80:1
+
+AUC-ROC:          0.7932
+AUC-PR:           0.1957
+Best F1:          0.2664
+Precision@Best:   0.3398
+Recall@Best:      0.2191
+Best Threshold:   -10.9941
+Test Positives:   2894
+Test Negatives:   231520

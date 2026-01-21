@@ -1,0 +1,20 @@
+DATASET STATISTICS FOR THESIS
+======================================================================
+
+Total Triples: 202,241
+  - Training: 141,568
+  - Validation: 20,022
+  - Test: 40,651
+
+Total Entities: 26,619
+  - Drugs: 11,292
+  - Proteins: 4,256
+  - Other: 11,071
+
+Total Relations: 14
+
+DTI Statistics:
+  - Total DTI pairs: 17,382
+  - Unique drugs: 7,060
+  - Unique targets: 4,256
+  - Sparsity: 99.9638%
